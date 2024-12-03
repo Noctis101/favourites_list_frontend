@@ -1,6 +1,6 @@
 # My Favourites List
 
-This project is the front-end client for that displays my lists of favourite things.
+This project is the front-end client that displays my lists of favourite things.
 
 ## Available Scripts
 
