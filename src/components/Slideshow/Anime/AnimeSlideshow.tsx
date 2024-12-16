@@ -1,76 +1,97 @@
 import React, { useState } from "react";
 import {
-  Button,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  Typography
+  Box,
+  Slide,
+  Stack,
+  IconButton,
+  useMediaQuery,
+  useTheme
 } from "@mui/material";
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { Anime } from "../../../types/Anime";
+import AnimeCard from '../../AnimeCard/Card'
 
-const AnimeSlideshow: React.FC<{ animeData: Anime[] }> = ({ animeData }) => {
+const AnimeSlideshow: React.FC<{ animeData: Anime[] }> = ({animeData}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState<"left" | "right">("left");
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleNextAnime = () => {
+    setSlideDirection("left");
     setCurrentIndex((prevIndex) => (prevIndex + 1) % animeData.length);
   };
 
   const handlePreviousAnime = () => {
+    setSlideDirection("right");
     setCurrentIndex((prevIndex) => (prevIndex - 1 + animeData.length) % animeData.length);
   };
 
-  /*
-    TODO: Re-do design, it's bland. 
-  */ 
   return (
-    <Card className="anime-card">
-      <CardMedia
-        component="img"
-        className="anime-image"
-        image={animeData[currentIndex].imageUrl}
-        alt={animeData[currentIndex].title}
-      />
-      <CardContent>
-        <Typography variant="h5" component="h2" className="anime-title">
-          {animeData[currentIndex].title}
-        </Typography>
-        <Typography variant="body1">
-          {animeData[currentIndex].synopsis}
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Episodes: {animeData[currentIndex].episodes}
-        </Typography>
-      </CardContent>
-      <CardActions className="anime-actions">
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<ArrowBack />}
-          onClick={handlePreviousAnime}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "auto",
+        padding: 2
+      }}
+    >
+      {/* Previous button */}
+      <IconButton
+        onClick={handlePreviousAnime}
+        sx={{ margin: 1 }}
+        disabled={currentIndex === 0}
+      >
+        <NavigateBeforeIcon fontSize={isSmallScreen ? "small" : "large"} />
+      </IconButton>
+      
+        {/* AnimeCard container */}
+        <Box
+          sx={{
+            width: isSmallScreen ? "90%" : "50%",
+            height: "100%",
+            overflow: "hidden"
+          }}
         >
-          Previous
-        </Button>
-        <Button
-          variant="outlined"
-          color="secondary"
-          href={animeData[currentIndex].url}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          More details on MyAnimeList
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          endIcon={<ArrowForward />}
-          onClick={handleNextAnime}
-        >
-          Next
-        </Button>
-      </CardActions>
-    </Card>
+          {/* Render the current anime card */}
+          {animeData.map((anime, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: currentIndex === index ? "block" : "none"
+              }}
+            >
+              <Slide direction={slideDirection} in={currentIndex === index}>
+                <Stack
+                  spacing={2}
+                  direction="column"
+                  alignItems="center"
+                  justifyContent="center"
+                  sx={{
+                    width: "100%"
+                  }}
+                >
+                  {/* Pass the current anime data to the AnimeCard component */}
+                  <AnimeCard anime={anime} />
+                </Stack>
+              </Slide>
+            </Box>
+          ))}
+        </Box>
+
+      {/* Next button */} 
+      <IconButton
+        onClick={handleNextAnime}
+        sx={{ margin: 1 }}
+        disabled={currentIndex === animeData.length - 1}
+      >
+        <NavigateNextIcon fontSize={isSmallScreen ? "small" : "large"} />
+      </IconButton>
+    </Box>
   );
 };
 
