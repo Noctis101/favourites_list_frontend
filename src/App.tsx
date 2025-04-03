@@ -4,11 +4,47 @@ import {
   Typography,
   Container,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Box,
+  ThemeProvider,
+  createTheme
 } from "@mui/material";
 import AnimeSlideshow from "./components/Slideshow/Anime/AnimeSlideshow";
 import Loader from "./components/Loader/Loader";
 import { Anime } from "./types/Anime";
+
+// Create a dark theme
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#2196f3',
+    },
+    secondary: {
+      main: '#90caf9',
+    },
+    background: {
+      default: '#0a0a0a',
+      paper: '#1a1a1a',
+    },
+  },
+  typography: {
+    fontFamily: "'Roboto', 'Arial', sans-serif",
+    h3: {
+      fontWeight: 700,
+      letterSpacing: '0.5px',
+    },
+    h4: {
+      fontWeight: 700,
+      letterSpacing: '0.5px',
+    },
+    subtitle1: {
+      fontSize: '1.1rem',
+      color: '#999',
+      marginBottom: '2rem',
+    }
+  },
+});
 
 const App: React.FC = () => {
   const [animeData, setAnimeData] = useState<Anime[]>([]);
@@ -17,7 +53,7 @@ const App: React.FC = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  useEffect (() => {
+  useEffect(() => {
     axios
       .get("http://localhost:8080/api/v1/favourites/anime")
       .then((response) => {
@@ -30,49 +66,82 @@ const App: React.FC = () => {
       });
   }, []);
 
-  if(loading) {
-    return(
-      <Loader />
-    );
+  if (loading) {
+    return <Loader />;
   }
 
-  return(
-    <Container id="app-container">
-      {animeData.length > 0 ? (
-        <>
-          <Typography
-            variant={isSmallScreen ? "h4" : "h3"}
-            id="site-title"
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            Kumakun's Favourites
-          </Typography>
-          <AnimeSlideshow animeData={animeData} />
-        </>
-      ) : (
-        <Typography
-          variant="h6"
-          color="error"
-          id="error-message"
-          sx={{
-            width: "100vw",
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "fixed",
-            top: 0,
-            left: 0,
-          }}
-        >
-          No data retrieved
-        </Typography>
-      )}
-    </Container>
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          background: "linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%)",
+          paddingY: 4,
+        }}
+      >
+        <Container id="app-container" maxWidth="lg">
+          {animeData.length > 0 ? (
+            <>
+              <Box sx={{ mb: 6 }}>
+                <Typography
+                  variant={isSmallScreen ? "h4" : "h3"}
+                  id="site-title"
+                  sx={{
+                    color: "#fff",
+                    marginBottom: 1,
+                    textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+                    position: "relative",
+                    "&::after": {
+                      content: '""',
+                      position: "absolute",
+                      bottom: -8,
+                      left: 0,
+                      width: "60px",
+                      height: "3px",
+                      background: "linear-gradient(45deg, #2196f3 30%, #90caf9 90%)",
+                      borderRadius: "2px",
+                    }
+                  }}
+                >
+                  My Anime Collection
+                </Typography>
+                <Typography variant="subtitle1" sx={{ opacity: 0.8 }}>
+                  Discover and track your favorite anime series
+                </Typography>
+              </Box>
+              
+              <Box sx={{ mb: 8 }}>
+                <Typography
+                  variant={isSmallScreen ? "h5" : "h4"}
+                  sx={{
+                    color: "#fff",
+                    marginBottom: 2,
+                    fontWeight: 600
+                  }}
+                >
+                  Featured Favorites
+                </Typography>
+                <AnimeSlideshow animeData={animeData} />
+              </Box>
+            </>
+          ) : (
+            <Typography
+              variant="h6"
+              sx={{
+                color: '#2196f3',
+                textAlign: "center",
+                padding: 4,
+                background: "rgba(0,0,0,0.6)",
+                borderRadius: 2,
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              No anime found in your favorites
+            </Typography>
+          )}
+        </Container>
+      </Box>
+    </ThemeProvider>
   );
 };
 
