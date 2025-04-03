@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import {
   Box,
   Slide,
-  Stack,
   IconButton,
   useMediaQuery,
-  useTheme
+  useTheme,
+  alpha
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { Anime } from "../../../types/Anime";
-import AnimeCard from '../../AnimeCard/Card'
+import AnimeCard from '../../AnimeCard/Card';
 
 const AnimeSlideshow: React.FC<{ animeData: Anime[] }> = ({animeData}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,64 +32,95 @@ const AnimeSlideshow: React.FC<{ animeData: Anime[] }> = ({animeData}) => {
   return (
     <Box
       sx={{
+        position: "relative",
+        width: "100%",
+        height: "auto",
         display: "flex",
-        flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        height: "auto",
-        padding: 2
       }}
     >
-      {/* Previous button */}
+      {/* Navigation buttons with hover effects */}
       <IconButton
         onClick={handlePreviousAnime}
-        sx={{ margin: 1 }}
         disabled={currentIndex === 0}
+        sx={{
+          position: "absolute",
+          left: isSmallScreen ? -16 : -28,
+          zIndex: 2,
+          backgroundColor: alpha(theme.palette.background.paper, 0.8),
+          backdropFilter: "blur(4px)",
+          "&:hover": {
+            backgroundColor: alpha(theme.palette.primary.main, 0.2),
+          },
+          width: isSmallScreen ? 40 : 56,
+          height: isSmallScreen ? 40 : 56,
+          transition: "all 0.3s ease",
+        }}
       >
-        <NavigateBeforeIcon fontSize={isSmallScreen ? "small" : "large"} />
+        <NavigateBeforeIcon 
+          sx={{ 
+            fontSize: isSmallScreen ? 24 : 32,
+            color: "white",
+          }} 
+        />
       </IconButton>
-      
-        {/* AnimeCard container */}
-        <Box
-          sx={{
-            width: isSmallScreen ? "90%" : "50%",
-            height: "100%",
-            overflow: "hidden"
-          }}
-        >
-          {/* Render the current anime card */}
-          {animeData.map((anime, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: currentIndex === index ? "block" : "none"
-              }}
-            >
-              <Slide direction={slideDirection} in={currentIndex === index}>
-                <Stack
-                  spacing={2}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  sx={{
-                    width: "100%"
-                  }}
-                >
-                  {/* Pass the current anime data to the AnimeCard component */}
-                  <AnimeCard anime={anime} />
-                </Stack>
-              </Slide>
-            </Box>
-          ))}
-        </Box>
 
-      {/* Next button */} 
+      {/* Card container with transition effects */}
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: isSmallScreen ? "100%" : "90%",
+          margin: "auto",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {animeData.map((anime, index) => (
+          <Box
+            key={index}
+            sx={{
+              display: currentIndex === index ? "block" : "none",
+              opacity: currentIndex === index ? 1 : 0,
+              transition: "opacity 0.5s ease-in-out",
+            }}
+          >
+            <Slide 
+              direction={slideDirection} 
+              in={currentIndex === index}
+              timeout={500}
+            >
+              <Box>
+                <AnimeCard anime={anime} />
+              </Box>
+            </Slide>
+          </Box>
+        ))}
+      </Box>
+
       <IconButton
         onClick={handleNextAnime}
-        sx={{ margin: 1 }}
         disabled={currentIndex === animeData.length - 1}
+        sx={{
+          position: "absolute",
+          right: isSmallScreen ? -16 : -28,
+          zIndex: 2,
+          backgroundColor: alpha(theme.palette.background.paper, 0.8),
+          backdropFilter: "blur(4px)",
+          "&:hover": {
+            backgroundColor: alpha(theme.palette.primary.main, 0.2),
+          },
+          width: isSmallScreen ? 40 : 56,
+          height: isSmallScreen ? 40 : 56,
+          transition: "all 0.3s ease",
+        }}
       >
-        <NavigateNextIcon fontSize={isSmallScreen ? "small" : "large"} />
+        <NavigateNextIcon 
+          sx={{ 
+            fontSize: isSmallScreen ? 24 : 32,
+            color: "white",
+          }} 
+        />
       </IconButton>
     </Box>
   );
